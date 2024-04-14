@@ -51,10 +51,9 @@ response = ai_client.chat.completions.create(
         {"role": "system", "content": "あなたはGitHubのプルリクエストを要約するアシスタントです。"},
         {"role": "user", "content": prompt}
     ],
-    max_tokens=400,
+    max_tokens=4000,
     n=1,
-    stop=None,
-    temperature=0.7,
+    temperature=0.0,
 )
 
 summary = response.choices[0].message.content.strip()
