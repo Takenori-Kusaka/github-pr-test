@@ -25,6 +25,8 @@ jobs:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
+        BACKLOG_API_KEY: ${{ secrets.BACKLOG_API_KEY }}  
+        BACKLOG_SPACE_NAME: your-space-name
       run: |
         python .github/scripts/generate_summary.py
         

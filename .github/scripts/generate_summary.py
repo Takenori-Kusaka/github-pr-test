@@ -77,3 +77,27 @@ report = f"""
 
 with open("pr_summary.md", "w") as f:
     f.write(report)
+
+import requests
+
+# 環境変数からAPIキーとプロジェクトIDを取得
+api_key = os.getenv("BACKLOG_API_KEY")
+space_id = os.getenv("BACKLOG_SPACE_ID")
+
+# ブランチ名から課題IDを取得（例: feature/PROJ-123）
+branch_name = os.getenv("GITHUB_REF") 
+issue_id = branch_name.split("/")[-1]
+
+# 課題コメントの追加
+comment_endpoint = f"https://{space_id}.backlog.com/api/v2/issues/{issue_id}/comments"
+comment_payload = {
+    "content": summary  # サマリの内容
+}
+comment_response = requests.post(comment_endpoint, params={"apiKey": api_key}, data=comment_payload)
+
+# 課題の状態を "処理済み" に変更
+status_endpoint = f"https://{space_id}.backlog.com/api/v2/issues/{issue_id}"
+status_payload = {
+    "statusId": 3  # "処理済み" 状態のID（プロジェクト設定から確認）
+}
+status_response = requests.patch(status_endpoint, params={"apiKey": api_key}, data=status_payload)
