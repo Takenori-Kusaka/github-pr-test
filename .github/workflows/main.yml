@@ -28,38 +28,6 @@ jobs:
       run: |
         python .github/scripts/generate_summary.py
         
-        pr_number = ${{ github.event.pull_request.number }}
-        pr_author = "${{ github.event.pull_request.user.login }}"
-        merged_by = "${{ github.event.pull_request.merged_by.login }}"
-        
-        reviews = []
-        for review in github.pulls.listReviews(owner, repo, pr_number):
-          if review.state == "APPROVED":
-            reviews.append(f"{review.user.login} approved the PR")
-        review_summary = "\n".join(reviews)
-        
-        comments = []  
-        for comment in github.issues.listComments(owner, repo, pr_number):
-          comments.append(f"{comment.user.login}: {comment.body}")
-        comment_summary = "\n".join(comments)
-        
-        report = f"""
-        # Pull Request Summary
-        
-        ## Overview
-        - PR #{pr_number} was opened by {pr_author}
-        - PR was merged by {merged_by}
-        
-        ## Reviews
-        {review_summary}
-        
-        ## Comments  
-        {comment_summary}
-        """
-        
-        with open("pr_summary.md", "w") as f:
-          f.write(report)
-        
     - uses: actions/upload-artifact@v4
       with:
         name: pr-summary-report
