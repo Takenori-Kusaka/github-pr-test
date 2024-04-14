@@ -45,8 +45,8 @@ PR作成者: {pr_author}
 {comment_summary}
 """
 
-response = ai_client.ChatCompletion.create(
-    model="gpt-3.5-turbo",
+response = ai_client.chat.completions.create(
+    model="gpt-4-turbo-preview",
     messages=[
         {"role": "system", "content": "あなたはGitHubのプルリクエストを要約するアシスタントです。"},
         {"role": "user", "content": prompt}
