@@ -1,0 +1,17 @@
+#
+# Rules
+#
+rules:
+  EC2InstancesProhibited:
+    assertions:
+      - none:
+          - resource_type: 'AWS::EC2::Instance'
+          - resource_type: 'AWS::AutoScaling::LaunchConfiguration'
+          - resource_type: 'AWS::AutoScaling::AutoScalingGroup'
+    reason: EC2 インスタンスの作成は禁止されています。
+
+  VPCCreationProhibited:
+    assertions:
+      - none:
+          - resource_type: 'AWS::EC2::VPC'
+    reason: VPCの作成は禁止されています。

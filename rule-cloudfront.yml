@@ -1,0 +1,55 @@
+#
+# Rules
+#
+rules:
+
+  CloudFrontDistributionWithCachingEnabled:
+    assertions:
+      - every:
+          - resource_type: 'AWS::CloudFront::Distribution'
+          - key: DistributionConfig.DefaultCacheBehavior.MinTTL
+            op: eq
+            value: 0
+          - key: DistributionConfig.DefaultCacheBehavior.MaxTTL
+            op: eq
+            value: 0
+          - key: DistributionConfig.DefaultCacheBehavior.DefaultTTL
+            op: eq
+            value: 0
+    reason: 開発期間中はCloudFrontのキャッシュを無効化し、動的アクセスを前提とします。
+
+  CloudFrontDistributionWithoutGeoRestriction:
+    assertions:
+      - every:
+          - resource_type: 'AWS::CloudFront::Distribution'
+          - key: DistributionConfig.Restrictions.GeoRestriction.RestrictionType
+            op: eq
+            value: whitelist
+          - key: DistributionConfig.Restrictions.GeoRestriction.Locations
+            op: contains
+            value: JP
+          - key: DistributionConfig.Restrictions.GeoRestriction.Locations
+            op: size
+            value: 1
+    reason: CloudFrontのGeo制限は日本のみに制限する必要があります。
+
+  CloudFrontDistributionWithoutAccessLogs:
+    assertions:
+      - every:
+          - resource_type: 'AWS::CloudFront::Distribution'
+          - key: DistributionConfig.Logging.Enabled
+            op: is_true
+          - key: DistributionConfig.Logging.Bucket
+            op: present
+          - key: DistributionConfig.Logging.Prefix
+            op: present
+    reason: CloudFrontのアクセスログを有効化する必要があります。
+
+  CloudFrontDistributionWithoutPriceClass200:
+    assertions:
+      - every:
+          - resource_type: 'AWS::CloudFront::Distribution'
+          - key: DistributionConfig.PriceClass
+            op: eq
+            value: PriceClass_200
+    reason: CloudFrontの料金クラスは200を使用する必要があります。

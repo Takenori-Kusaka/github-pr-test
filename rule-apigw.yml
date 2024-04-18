@@ -1,0 +1,22 @@
+#
+# Rules
+#
+rules:
+  ApiGatewayWithoutAuthorizationProhibited:
+    assertions:
+      - every:
+          - resource_type: 'AWS::ApiGateway::Method'
+          - key: AuthorizationType
+            op: present
+    reason: 認証設定(AuthorizationType)のないAPI Gatewayメソッドの作成は禁止されています。
+
+  ApiGatewayWithoutCloudWatchLogsProhibited:
+    assertions:
+      - every:
+          - resource_type: 'AWS::ApiGateway::Stage'
+          - key: MethodSettings
+            op: present
+          - key: MethodSettings.*.LoggingLevel
+            op: contains
+            value: INFO
+    reason: CloudWatch Logsと連携していないAPI Gatewayステージの作成は禁止されています。

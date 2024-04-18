@@ -1,0 +1,58 @@
+#
+# Rules
+#
+rules:
+  SQSQueueWithoutMessageRetentionPeriod:
+    assertions:
+      - every:
+          - resource_type: 'AWS::SQS::Queue'
+          - key: MessageRetentionPeriod
+            op: present
+    reason: SQSキューにはメッセージ保持期間の設定が必要です。
+
+  SQSQueueWithoutVisibilityTimeout:
+    assertions:
+      - every:
+          - resource_type: 'AWS::SQS::Queue'
+          - key: VisibilityTimeout
+            op: present
+    reason: SQSキューには可視性タイムアウトの設定が必要です。
+
+  SQSQueueWithoutDeadLetterQueue:
+    assertions:
+      - every:
+          - resource_type: 'AWS::SQS::Queue'
+          - key: RedrivePolicy
+            op: present
+    reason: SQSキューにはデッドレターキューの設定が必要です。
+
+  SQSQueueWithoutEncryption:
+    assertions:
+      - every:
+          - resource_type: 'AWS::SQS::Queue'
+          - key: KmsMasterKeyId
+            op: present
+    reason: SQSキューは暗号化が必須です。
+
+  SQSQueueWithoutCloudWatchSettings:
+    assertions:
+      - every:
+          - resource_type: 'AWS::SQS::Queue'
+          - resource_type: 'AWS::SQS::QueuePolicy'
+            properties:
+              PolicyDocument:
+                Statement:
+                  - Effect: Allow
+                    Principal: 
+                      Service: cloudwatch.amazonaws.com
+                    Action: 'sqs:SendMessage'
+                    Resource: !GetAtt Queue.QueueArn
+    reason: SQSキューにはCloudWatchの設定が必要です。
+
+  SQSQueueNotFIFO:
+    assertions:
+      - every:
+          - resource_type: 'AWS::SQS::Queue'
+          - key: FifoQueue
+            op: is_true
+    reason: SQSキューはFIFO(First-In-First-Out)キューである必要があります。

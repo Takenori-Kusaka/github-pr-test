@@ -1,0 +1,21 @@
+#
+# Rules
+#
+rules:
+  StepFunctionWithoutCloudWatchLogs:
+    assertions:
+      - every:
+          - resource_type: 'AWS::StepFunctions::StateMachine'
+          - resource_type: 'AWS::Logs::LogGroup'
+            properties:
+              LogGroupName: !Sub '/aws/vendedlogs/states/${StateMachineName}'
+    reason: StepFunctionにはCloudWatch Logsの設定が必要です。
+
+  StepFunctionWithoutErrorHandling:
+    assertions:
+      - every:
+          - resource_type: 'AWS::StepFunctions::StateMachine'
+          - key: DefinitionString
+            op: contains
+            value: "Catch"
+    reason: StepFunctionには失敗時のエラーハンドリングが必要です。

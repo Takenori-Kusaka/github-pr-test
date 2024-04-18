@@ -1,0 +1,19 @@
+#
+# Rules
+#
+rules:
+  S3BucketWithoutLifecyclePolicyProhibited:
+    assertions:
+      - every:
+          - resource_type: 'AWS::S3::Bucket'
+          - key: LifecycleConfiguration
+            op: present
+    reason: ライフサイクルポリシー(LifecycleConfiguration)のないS3バケットの作成は禁止されています。
+    
+  S3BucketWithoutEncryptionProhibited:
+    assertions:
+      - every:
+          - resource_type: 'AWS::S3::Bucket'
+          - key: BucketEncryption
+            op: present
+    reason: 暗号化設定(BucketEncryption)のないS3バケットの作成は禁止されています。

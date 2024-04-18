@@ -1,0 +1,22 @@
+#
+# Rules
+#
+rules:
+  LambdaWithoutMemorySizeProhibited:
+    assertions:
+      - every:
+          - resource_type: 'AWS::Lambda::Function'
+          - key: MemorySize
+            op: present
+    reason: メモリサイズ(MemorySize)の指定のないLambda関数の作成は禁止されています。
+
+  LambdaWithoutConcurrencySettingProhibited:
+    assertions:
+      - every:
+          - resource_type: 'AWS::Lambda::Function'
+          - xor:
+              - key: ReservedConcurrentExecutions
+                op: present
+              - key: ProvisionedConcurrencyConfig
+                op: present
+    reason: コンカレンシー設定(ReservedConcurrentExecutionsまたはProvisionedConcurrencyConfig)のないLambda関数の作成は禁止されています。

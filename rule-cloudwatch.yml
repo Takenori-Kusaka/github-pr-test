@@ -1,0 +1,11 @@
+#
+# Rules
+#
+rules:
+  CloudWatchLogsWithoutRetentionPolicyProhibited:
+    assertions:
+      - every:
+          - resource_type: 'AWS::Logs::LogGroup'
+          - key: RetentionInDays
+            op: present
+    reason: ライフサイクルポリシー(RetentionInDays)のないCloudWatch Logsの作成は禁止されています。
