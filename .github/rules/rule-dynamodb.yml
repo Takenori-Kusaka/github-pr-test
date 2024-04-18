@@ -1,0 +1,43 @@
+#
+# Rules
+#
+rules:
+  DynamoDBTableWithoutEncryptionProhibited:
+    assertions:
+      - every:
+          - resource_type: 'AWS::DynamoDB::Table'
+          - key: SSESpecification.SSEEnabled
+            op: is_true
+    reason: 暗号化設定(SSESpecification.SSEEnabled)のないDynamoDBテーブルの作成は禁止されています。
+
+  DynamoDBTableWithoutAutoScalingProhibited:
+    assertions:
+      - every:
+          - resource_type: 'AWS::DynamoDB::Table'
+          - key: BillingMode
+            op: eq
+            value: PROVISIONED
+          - resource_type: 'AWS::ApplicationAutoScaling::ScalableTarget'
+            properties:
+              ResourceId: !Sub 'table/${TableName}'
+          - resource_type: 'AWS::ApplicationAutoScaling::ScalingPolicy'
+            properties:
+              ScalingTargetId: !Ref ScalableTarget
+    reason: オートスケーリング設定のないDynamoDBテーブルの作成は禁止されています。
+
+  DynamoDBTableWithoutBackupPlanProhibited:
+    assertions:
+      - every:
+          - resource_type: 'AWS::DynamoDB::Table'
+          - resource_type: 'AWS::Backup::BackupPlan'
+            properties:
+              BackupPlanRule:
+                - TargetBackupVault: !Ref BackupVault
+                  Lifecycle:
+                    DeleteAfterDays: 35
+          - resource_type: 'AWS::Backup::BackupSelection'
+            properties:
+              BackupPlanId: !Ref BackupPlan
+              Resources:
+                - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${TableName}'
+    reason: バックアップ設定のないDynamoDBテーブルの作成は禁止されています。バックアップ設定にはライフサイクルポリシーの設定が必須です。

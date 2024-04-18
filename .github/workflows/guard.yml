@@ -1,0 +1,56 @@
+name: CloudFormation Guard
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+  workflow_dispatch:
+
+jobs:
+
+  cloudformation-guard:
+    name: CloudFormation Guard
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        rule-set:
+          - rule-apigw.yml
+          - rule-cloudfront.yml
+          - rule-cloudwatch.yml
+          - rule-dynamodb.yml
+          - rule-lambda.yml
+          - rule-s3.yaml
+          - rule-sqs.yml
+          - rule-stepfunction.yml
+          - rule-vpc.yml
+        
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '14'
+        
+    - name: Install CDK
+      run: npm install -g aws-cdk
+        
+    - name: Synthesize CloudFormation templates
+      run: |
+        cdk synth --output-dir .github/output
+        
+    - name: Set up Python  
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install CloudFormation Guard
+      run: |
+        python -m pip install --upgrade pip
+        pip install cloudformation-guard
+        
+    - name: Run CloudFormation Guard
+      run: |
+        cfn-guard validate --data-dir .github/output --rules .github/rules/${{ matrix.rule-set }}
+      env:
+        AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
